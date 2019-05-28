@@ -1,0 +1,17 @@
+{
+  "name": "node-cssql",
+  "version": "1.0.1",
+  "description": "Javascript wrapper for the CSS in SQL Transpiler",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Andrew McNutt",
+  "license": "ISC",
+  "devDependencies": {
+    "node-minify": "^3.6.0"
+  }
+}

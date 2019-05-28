@@ -1,0 +1,10 @@
+.stack-work/
+app/
+dist/
+src/
+test/
+node_modules/
+
+cssql.cabal
+package.yaml
+stack.yaml

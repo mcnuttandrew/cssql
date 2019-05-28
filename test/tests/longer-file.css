@@ -1,0 +1,73 @@
+.app {
+  align-items: center;
+  color: #000;
+  display: flex;
+  flex-direction: column;
+  font-family: GillSans;
+  padding: 5% 20%;
+}
+.circles-container {
+  align-items: center;
+  display: flex;
+  justify-content: space-around;
+}
+.project-name {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.project-name .title {
+  font-size: 72px;
+  font-weight: bold;
+}
+.project-name .subtitle {
+  font-size: 48px;
+  font-weight: lighter;
+}
+.project-name .authorship a {
+  color: #6c8aa4;
+  text-decoration: none;
+}
+.project-name .authorship {
+  font-size: 12px;
+}
+.tooltip {
+  align-items: center;
+  background: #000;
+  border-radius: 5px;
+  color: #fff;
+  display: flex;
+  padding: 5px;
+}
+.names-boxes {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 460px;
+}
+.names-boxes .name-box {
+  align-items: center;
+  display: flex;
+  padding: 0 10px;
+}
+.names-boxes .color-box {
+  align-items: center;
+  display: flex;
+  height: 30px;
+  justify-content: center;
+  width: 70px;
+}
+.names-boxes .color-name {
+  padding: 0 10px;
+  white-space: nowrap;
+  width: 120px;
+}
+.names-boxes .reversed .color-name {
+  text-align: right;
+}
+.names-boxes .reversed {
+  flex-direction: row-reverse;
+}
+.rv-xy-plot__series--label-text {
+  font-size: 20px;
+  text-anchor: middle !important;
+}

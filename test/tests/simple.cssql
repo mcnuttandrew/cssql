@@ -1,0 +1,4 @@
+CREATE SELECTOR .my-cool-selector;
+INSERT .my-cool-selector (padding, 3px);
+INSERT .my-cool-selector (border, thin solid black);
+INSERT .my-cool-selector (border, thin solid red);

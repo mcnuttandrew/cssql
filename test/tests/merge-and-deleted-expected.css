@@ -1,0 +1,16 @@
+#batmang.ro-bang {
+  background: #fff;
+  display: flex;
+  pointer-events: none;
+}
+.octopus {
+  background: red;
+  border: thin solid black;
+  border-radius: 100%;
+}
+.doctor-dog {
+  background: red;
+  border: thin solid black;
+  border-radius: 100%;
+  display: flex;
+}

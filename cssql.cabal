@@ -1,0 +1,67 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.31.1.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 994a4596dbf710e335e70bee030855a16b2fd066daa85e6639f3b9aeeaf32413
+
+name:           cssql
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/mcnuttandrew/cssql#readme>
+homepage:       https://github.com/mcnuttandrew/cssql#readme
+bug-reports:    https://github.com/mcnuttandrew/cssql/issues
+author:         Andrew McNutt
+maintainer:     mcnuttandrew@gmail.com
+copyright:      2019 Andrew McNutt
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/mcnuttandrew/cssql
+
+library
+  exposed-modules:
+      Lib
+  other-modules:
+      Paths_cssql
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , split
+  default-language: Haskell2010
+
+executable cssql-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_cssql
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , cssql
+    , split
+  default-language: Haskell2010
+
+test-suite cssql-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Paths_cssql
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base >=4.7 && <5
+    , containers
+    , cssql
+    , split
+  default-language: Haskell2010

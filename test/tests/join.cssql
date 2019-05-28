@@ -1,0 +1,15 @@
+CREATE SELECTOR .margin-huge-top;
+INSERT .margin-huge-top (margin-top, 50px);
+
+CREATE SELECTOR .margin-huge-bottom;
+INSERT .margin-huge-bottom (margin-bottom, 50px);
+
+CREATE SELECTOR .margin-huge-left;
+INSERT .margin-huge-left (margin-left, 50px);
+
+CREATE SELECTOR .margin-huge-right;
+INSERT .margin-huge-right (margin-right, 50px);
+
+MERGE .margin-huge-top AND .margin-huge-bottom AND .margin-huge-left AND .margin-huge-right AS .margin-huge;
+
+DROP .margin-huge-left;

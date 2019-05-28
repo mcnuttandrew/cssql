@@ -1,0 +1,15 @@
+.margin-huge-top {
+  margin-top: 50px;
+}
+.margin-huge-bottom {
+  margin-bottom: 50px;
+}
+.margin-huge-right {
+  margin-right: 50px;
+}
+.margin-huge {
+  margin-bottom: 50px;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-top: 50px;
+}

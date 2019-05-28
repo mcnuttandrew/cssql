@@ -1,0 +1,17 @@
+#test {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.goodSelector:nth-child(3) {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+* > cat-dog {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}

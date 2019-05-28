@@ -1,0 +1,113 @@
+CREATE SELECTOR .app;
+INSERT .app (align-items, center);
+INSERT .app (color, #000);
+INSERT .app (display, flex);
+INSERT .app (flex-direction, column);
+INSERT .app (font-family, GillSans);
+INSERT .app (padding, 5% 20%);
+
+CREATE SELECTOR .circles-container;
+INSERT .circles-container (align-items, center);
+INSERT .circles-container (display, flex);
+INSERT .circles-container (justify-content, space-around);
+
+
+CREATE SELECTOR .project-name;
+INSERT .project-name (display, flex);
+INSERT .project-name (flex-direction, column);
+INSERT .project-name (width, 100%);
+
+CREATE SELECTOR .project-name .title;
+INSERT .project-name .title (font-size, 72px);
+INSERT .project-name .title (font-weight, bold);
+
+
+
+CREATE SELECTOR .project-name .subtitle;
+INSERT .project-name .subtitle (font-size, 48px);
+INSERT .project-name .subtitle (font-weight, lighter);
+
+CREATE SELECTOR .project-name .authorship a;
+INSERT .project-name .authorship a (color, #6c8aa4);
+INSERT .project-name .authorship a (text-decoration, none);
+
+
+CREATE SELECTOR .project-name .authorship;
+INSERT .project-name .authorship (font-size, 12px);
+
+
+CREATE SELECTOR .tooltip;
+INSERT .tooltip (align-items, center);
+INSERT .tooltip (background, #000);
+INSERT .tooltip (border-radius, 5px);
+INSERT .tooltip (color, #fff);
+INSERT .tooltip (display, flex);
+INSERT .tooltip (padding, 5px);
+
+
+CREATE SELECTOR .names-boxes;
+INSERT .names-boxes (display, flex);
+INSERT .names-boxes (flex-wrap, wrap);
+INSERT .names-boxes (max-width, 460px);
+
+
+
+CREATE SELECTOR .names-boxes .name-box;
+INSERT .names-boxes .name-box (align-items, center);
+INSERT .names-boxes .name-box (display, flex);
+INSERT .names-boxes .name-box (padding, 0 10px);
+
+
+CREATE SELECTOR .names-boxes .color-box;
+INSERT .names-boxes .color-box (align-items, center);
+INSERT .names-boxes .color-box (display, flex);
+INSERT .names-boxes .color-box (height, 30px);
+INSERT .names-boxes .color-box (justify-content, center);
+INSERT .names-boxes .color-box (width, 70px);
+
+
+CREATE SELECTOR .names-boxes .color-name;
+INSERT .names-boxes .color-name (padding, 0 10px);
+INSERT .names-boxes .color-name (width, 120px);
+INSERT .names-boxes .color-name (white-space, nowrap);
+
+
+CREATE SELECTOR .names-boxes .reversed .color-name;
+INSERT .names-boxes .reversed .color-name (text-align, right);
+
+CREATE SELECTOR .names-boxes .reversed;
+INSERT .names-boxes .reversed (flex-direction, row-reverse);
+
+
+// @media screen and (max-width: 576px) {
+//  .app {
+//    padding: 5%)
+//  }
+//
+//  .project-name .title {
+//    font-size: 48px;
+//  }
+//
+//  .project-name .subtitle {
+//    font-size: 24px;
+//  }
+//
+//  .circles-container {
+//    flex-direction: column;
+//  }
+//
+//  .timeline-wrapper {
+//    max-width: 100%;
+//    overflow: scroll;
+//    -webkit-overflow-scrolling: touch;
+//  }
+//
+//  .names-boxes {
+//    align-self: flex-start;
+//    max-width: 100px;
+//  }
+// }
+
+CREATE SELECTOR .rv-xy-plot__series--label-text;
+INSERT .rv-xy-plot__series--label-text (font-size, 20px);
+INSERT .rv-xy-plot__series--label-text (text-anchor, middle !important);

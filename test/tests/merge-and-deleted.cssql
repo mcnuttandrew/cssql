@@ -1,0 +1,14 @@
+// left table
+CREATE SELECTOR #batmang.ro-bang;
+INSERT #batmang.ro-bang (pointer-events, none);
+INSERT #batmang.ro-bang (background, #fff);
+INSERT #batmang.ro-bang (display, flex);
+
+// right table
+CREATE SELECTOR .octopus;
+INSERT .octopus (background, red);
+INSERT .octopus (border, thin solid black);
+INSERT .octopus (border-radius, 100%);
+
+MERGE #batmang.ro-bang AND .octopus AS .doctor-dog;
+DELETE .doctor-dog pointer-events;

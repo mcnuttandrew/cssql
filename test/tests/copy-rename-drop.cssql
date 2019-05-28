@@ -1,0 +1,14 @@
+CREATE SELECTOR #test;
+INSERT #test (display, flex);
+INSERT #test (flex-direction, column);
+INSERT #test (align-items, center);
+INSERT #test (justify-content, center);
+
+// note that we dont actually care if selectors are valid selectors
+COPY #test AS octopus;
+COPY octopus AS .small-dog#large-cat;
+RENAME octopus AS .goodSelector:nth-child(3);
+DELETE .small-dog#large-cat align-items;
+INSERT .small-dog#large-cat (justify-content, flex-end);
+COPY .small-dog#large-cat AS * > cat-dog;
+DROP .small-dog#large-cat;
