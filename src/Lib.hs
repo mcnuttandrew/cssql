@@ -13,22 +13,21 @@ import qualified Data.Foldable as F
 -- TYPES TYPES TYPES TYPES TYPES TYPES TYPES TYPES TYPES
 -- TYPES TYPES TYPES TYPES TYPES TYPES TYPES TYPES TYPES
 
-data Database = Database {
-  tables :: Map.Map String Table,
-  maxOrder :: Int
-  } -- deriving (Show)
+type TableMap = Map.Map String Table
 data Table = Table {
   selector :: String,
   attributes :: [Attribute],
+  maxOrder :: Int,
+  tables :: TableMap,
   order :: Int
-  -- TODO VIEWS, which encompass media queries, selector states etc
   } deriving (Eq)
+
 data Attribute = Attribute {
   cssKey :: String,
   cssVal :: String} deriving (Ord, Eq)
 
 data ParserFunction = ParserFunction {
-  fun :: Database -> Database,
+  fun :: Table -> Table,
   funType :: String,
   args :: [String]
   }
@@ -44,26 +43,18 @@ instance Show Table where
 
 instance Ord Table where
   compare a b
-    | order a <= order b = GT
-    | order a > order b = LT
-    | otherwise = LT
-
-instance Show Database where
-  show Database{tables = tabs} = foldr (\ tab acc -> acc ++ show tab) "" orderedTables
-    where
-      -- tables must be ordered by their input order, the cascade still stands
-      orderedTables = sort (map snd (Map.toList tabs))
+    | order a <= order b = LT
+    | order a > order b = GT
+    | otherwise = GT
 
 instance Show ParserFunction where
   show x = funType x ++ "(" ++ intercalate ", " (args x) ++ ")"
 
 instance Semigroup Table where
-  a <> b = Table {
-    selector = selector a ++ ",\n" ++ selector b,
-    attributes = mergedAttributes,
-    order = 1 + max (order a) (order b)
-    }
+  a <> b = containerTable {attributes = mergedAttributes, order = 1 + max (order a) (order b)}
     where
+      containerTable = emptyTable (selector a ++ ",\n" ++ selector b)
+
       merger = foldr (\ atrib acc -> Map.insert (cssKey atrib) (cssVal atrib) acc)
       mergeLeft = merger Map.empty (attributes a)
       toAttribute (k, v) = Attribute{cssKey = k, cssVal = v}
@@ -81,41 +72,62 @@ addAttributeToTable atrib tb = tb {
 removeAttributeFromTable :: Table -> String -> Table
 removeAttributeFromTable tb key = tb{attributes = filter (\ x -> cssKey x /= key) (attributes tb)}
 
-emptyDatabase :: Database
-emptyDatabase = Database {tables = Map.empty, maxOrder = 0}
-
 emptyTable :: String -> Table
-emptyTable str = Table {selector = str, attributes = [], order = -1}
+emptyTable str = Table {selector = str, attributes = [], order = -1, tables = Map.empty, maxOrder = 0}
 
-insertTableIntoDB :: Database -> Table -> Database
-insertTableIntoDB db tab = Database {tables = newTables, maxOrder = tabOrder + 1}
+insertTableIntoTable :: Table -> Table -> Table
+insertTableIntoTable containerTab insertTab = containerTab {tables = newTables, maxOrder = tabOrder + 1}
   where
-    tabOrder = maxOrder db
-    selectorName = selector tab
-    newTable = tab {order = tabOrder}
-    newTables = Map.insert selectorName newTable (tables db)
+    tabOrder = maxOrder containerTab
+    selectorName = selector insertTab
+    newTable = insertTab {order = tabOrder}
+    newTables = Map.insert selectorName newTable (tables containerTab)
 
 
-updateTableInDB :: Database -> Table -> Database
-updateTableInDB db tab = db {tables = Map.insert (selector tab) tab (tables db)}
+updateTableInTable :: Table -> Table -> Table
+updateTableInTable containerTab insertTab = containerTab {
+  tables = Map.insert (selector insertTab) insertTab (tables containerTab)}
 
-dropTableInDB :: Database -> String -> Database
-dropTableInDB db selectorName = db {tables = Map.delete selectorName (tables db)}
+dropTableInTable :: Table -> String -> Table
+dropTableInTable tab selectorName = tab {tables = Map.delete selectorName (tables tab)}
 
-getTable :: Database -> String -> Table
-getTable db tableName = fromMaybe (error("Selector \"" ++ tableName ++ "\" not found")) (Map.lookup tableName (tables db))
+getTable :: Table -> String -> Table
+getTable tab tableName = fromMaybe (error("Selector \"" ++ tableName ++ "\" not found")) (Map.lookup tableName (tables tab))
+
+mergeSelectors :: String -> Table -> Table
+mergeSelectors parentSelector tab = tab {
+  tables = Map.map (mergeSelectors newSelector) (tables tab),
+  selector = newSelector
+  }
+  where
+    thisSelector = selector tab
+    isPsuedoSelector = False
+    conjoiner = if isPsuedoSelector then "" else " "
+    prefix = if 0 == length parentSelector then "" else parentSelector ++ conjoiner
+    newSelector = prefix ++ thisSelector
+
+mapTables :: (Table -> Table) -> Table -> Table
+mapTables f tab = f tab {tables = Map.map f (tables tab)}
+
+foldTables :: (Table -> a -> a) -> a -> Table -> a
+foldTables f init tab = foldr f init orderedTables
+  where
+    orderedTables = sort (map snd (Map.toList (tables tab)))
+
 
 -- MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES
 -- MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES
 -- MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES
 
 transpile :: String -> String
-transpile cssqlInput = show (executeStatements parsedStatements)
+transpile cssqlInput = foldTables (\tab acc -> show tab ++ acc) "" finalTable
   where
     parsedStatements = map parseStatement (cleanIntoStatements cssqlInput)
+    computedTable = executeStatements parsedStatements
+    finalTable = mergeSelectors "" computedTable
 
-executeStatements :: [ParserFunction] -> Database
-executeStatements = foldl (flip fun) emptyDatabase
+executeStatements :: [ParserFunction] -> Table
+executeStatements = foldl (flip fun) (emptyTable "")
 
 cleanIntoStatements :: String -> [String]
 cleanIntoStatements txt = filter (not . null) (splitOn ";" (filter (/= '\n') noComments))
@@ -163,7 +175,7 @@ createTable commandStr = ParserFunction {
   }
   where
     (tableName:xs) = extractArgs ["CREATE SELECTOR "] commandStr
-    boundFunc db = insertTableIntoDB db (emptyTable tableName)
+    boundFunc db = insertTableIntoTable db (emptyTable tableName)
 
 extractInsertArgs :: [[String]] -> (String, String, String)
 extractInsertArgs [[fullStr, target, key, val]] = (target, key, val)
@@ -182,7 +194,7 @@ createInsert commandStr = ParserFunction {
   where
     (tableName, key, val) = validateInsertArgs (extractArgs ["INSERT ", " (", ", ", ")"] commandStr)
     addAtrib = addAttributeToTable (Attribute{cssKey = key, cssVal = val})
-    boundFunc db = updateTableInDB db (addAtrib (getTable db tableName))
+    boundFunc db = updateTableInTable db (addAtrib (getTable db tableName))
 
 createDelete :: String -> ParserFunction
 createDelete commandStr = ParserFunction {
@@ -193,7 +205,7 @@ createDelete commandStr = ParserFunction {
   where
   (funName:tableName:attributeName:xs) = toArgs commandStr
 
-  boundFunc db = updateTableInDB db newTable
+  boundFunc db = updateTableInTable db newTable
     where
       newTable = removeAttributeFromTable (getTable db tableName) attributeName
 
@@ -202,7 +214,7 @@ createDrop :: String -> ParserFunction
 createDrop commandStr = ParserFunction {fun = boundFunc, funType = "createDrop", args = [tableName]}
   where
   (funName:tableName:xs) = toArgs commandStr
-  boundFunc db = dropTableInDB db tableName
+  boundFunc db = dropTableInTable db tableName
 
 createCopy :: String -> ParserFunction
 createCopy commandStr = ParserFunction {
@@ -212,7 +224,7 @@ createCopy commandStr = ParserFunction {
   where
   oldTableName:newTableName:xs = extractArgs ["COPY ", " AS "] commandStr
 
-  boundFunc db = insertTableIntoDB db (oldTable{selector = newTableName})
+  boundFunc db = insertTableIntoTable db (oldTable{selector = newTableName})
     where
       oldTable = getTable db oldTableName
 
@@ -224,10 +236,10 @@ createRename commandStr = ParserFunction {
   where
   oldTableName:newTableName:xs = extractArgs ["RENAME ", " AS "] commandStr
 
-  boundFunc db = insertTableIntoDB dbUpdate (oldTable{selector = newTableName})
+  boundFunc db = insertTableIntoTable dbUpdate (oldTable{selector = newTableName})
     where
       oldTable = getTable db oldTableName
-      dbUpdate = dropTableInDB db oldTableName
+      dbUpdate = dropTableInTable db oldTableName
 
 
 
@@ -254,11 +266,8 @@ createMerge commandStr = ParserFunction {
     newTableName = last foundArgs
     mergingTables = init foundArgs
 
-    boundFunc db = insertTableIntoDB db mergedTable
+    boundFunc containerTab = insertTableIntoTable containerTab mergedTable
       where
-        currentTables = map (getTable db) mergingTables
-        mergedTable = Table {
-          selector = newTableName,
-          attributes = attributes (foldr (<>) (emptyTable "FILLTABLE") currentTables),
-          order = -1
-        }
+        currentTables = map (getTable containerTab) mergingTables
+        tempTable = foldr (<>) (emptyTable "FILLTABLE") currentTables
+        mergedTable = tempTable {selector = newTableName, order = -1}
