@@ -1,62 +1,107 @@
 # CSSQL
-### Functional Programming Final Assignment
 
-In this project we design and implement a programming language that transpiles into CSS.
+This library cuts through the javascript/css debate by providing a forbidden third option: css in sql!
+Through the use of a SQL DDL-like syntax users are able to style files which are then transpiled in CSS. The transpiler is written in haskell, but is made more usefully available by being distribution in javascript through the use [ghcjs](https://github.com/ghcjs/ghcjs).
+
+*Q*: I've heard that CSS often falls in the write-once-read-never mode of software, does this help to address that?<br/>
+*A*: No, in fact it actually makes the problem worse by making the syntax more verbose and hence more difficult to read.
+
+*Q*: Is this good for anything?<br/>
+*A*: .... it could be ?????????
+
+### Node API
+
+You can install the library inside of a node project by running:
+
+```sh
+npm install node-cssql
+```
+
+You can then use it like:
+
+```js
+const {cssql} = require('node-cssql');
+
+cssql('./test/tests/join.cssql', './test/tests/join.css');
+
+```
 
 
-### API
-
-the haskell api has two commands
-
-- runghc Main.hs convert <IN FILE.cssql> <OUT FILE.css>
-
-  As the name would suggest that function converts a target cssql file into a css file
-
-- runghc Main.hs runtests
-
-  This executes our test suite
-
-### FAQ
-
-Q: I've heard that CSS often falls in the write-once-read-never mode of software, does this help to address that?
-A: No, in fact it actually makes the problem worse by making the syntax more verbose and hence more difficult to read.
-
-Q: Is this good for anything?
-A: .... it could be ?????????
 
 ### Functions
-`CREATE SELECTOR <SELECTOR>;`
+`CREATE SELECTOR <SELECTOR>;`<br/>
 Creates a selector table
 
-`CREATE VARIABLE $KEY <VALUE>;`
+`CREATE VARIABLE $KEY <VALUE>;`<br/>
 Creates a css variable
 
-`INSERT <SELECTOR> (<CSS_KEY>, <CSS_VALUE>);`
+`INSERT <SELECTOR> (<CSS_KEY>, <CSS_VALUE>);`<br/>
 Insert an attribute into a table
-#### TODO maybe add into after insert
 
-`DELETE <SELECTOR> <CSS_KEY>;`
+`DELETE <SELECTOR> <CSS_KEY>;`<br/>
 Remove attribute from a table
 
-`DROP <SELECTOR>;`
+`DROP <SELECTOR>;`<br/>
 Remove table from the database
 
-`COPY <SELECTOR> AS <SELECTOR>;`
+`COPY <SELECTOR> AS <SELECTOR>;`<br/>
 Copy a table as another table, old table still exists.
 
-`RENAME <SELECTOR> AS <SELECTOR>;`
+`RENAME <SELECTOR> AS <SELECTOR>;`<br/>
 Rename a table
 
-`MERGE <SELECTOR> AND <SELECTOR> AND ... AND <SELECTOR> AS <NEW SELECTOR>;`
+`MERGE <SELECTOR> AND <SELECTOR> AND ... AND <SELECTOR> AS <NEW SELECTOR>;`<br/>
 Combine the attributes of a collection of selectors, order of input selectors determines resulting attribute table
 
 
-### TODO
-- Combine multiple files (probably need to be able to detect circular dependencies)
-- Variable tables
-- Consuming tables under another single name space (Consumption should pull that table out of the global name space)
-- Media Queries and meta selectors as table views
+### Syntax Example
 
+What does this wacky language actually look like? Well,
+
+```cssql
+
+CREATE SELECTOR .margin-huge-top;
+INSERT .margin-huge-top (margin-top, 50px);
+
+CREATE SELECTOR .margin-huge-bottom;
+INSERT .margin-huge-bottom (margin-bottom, 50px);
+
+CREATE SELECTOR .margin-huge-left;
+INSERT .margin-huge-left (margin-left, 50px);
+
+CREATE SELECTOR .margin-huge-right;
+INSERT .margin-huge-right (margin-right, 50px);
+
+MERGE .margin-huge-top AND .margin-huge-bottom AND .margin-huge-left AND .margin-huge-right AS .margin-huge;
+
+DROP .margin-huge-left;
+
+```
+
+Which will yield css like
+
+```css
+.margin-huge-top {
+  margin-top: 50px;
+}
+.margin-huge-bottom {
+  margin-bottom: 50px;
+}
+.margin-huge-right {
+  margin-right: 50px;
+}
+.margin-huge {
+  margin-bottom: 50px;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-top: 50px;
+}
+```
+
+You can check out more little examples in the [tests folder](https://github.com/mcnuttandrew/cssql/tree/master/test/tests).
+
+
+## Internals
 
 ### Developing
 
@@ -78,3 +123,15 @@ To create a copy of the js library for distribution run
 To run the library in haskell without using stack do
 
 runghc -i./src app/Main.hs convert FILE_IN FILE_OUT
+
+### Dev API
+
+the haskell api has two commands
+
+- runghc Main.hs convert <IN FILE.cssql> <OUT FILE.css>
+
+  As the name would suggest that function converts a target cssql file into a css file
+
+- runghc Main.hs runtests
+
+  This executes our test suite
