@@ -6,6 +6,7 @@ import qualified Data.Map as Map
 import Data.List
 import Data.List.Split
 import Data.Semigroup
+import Data.Maybe
 import qualified Data.Foldable as F
 
 -- TYPES TYPES TYPES TYPES TYPES TYPES TYPES TYPES TYPES
@@ -102,9 +103,7 @@ dropTableInDB :: Database -> String -> Database
 dropTableInDB db selectorName = db {tables = Map.delete selectorName (tables db)}
 
 getTable :: Database -> String -> Table
-getTable db tableName = case Map.lookup tableName (tables db) of
-    Just x -> x
-    Nothing -> error("Selector \"" ++ tableName ++ "\" not found")
+getTable db tableName = fromMaybe (error("Selector \"" ++ tableName ++ "\" not found")) (Map.lookup tableName (tables db))
 
 -- MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES
 -- MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES MAIN EVENT CYCLES
