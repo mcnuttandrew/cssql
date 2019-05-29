@@ -156,6 +156,7 @@ parseStatement commandStr =
      "DROP"   -> createDrop commandStr
      "INSERT" -> createInsert commandStr
      "MERGE"  -> createMerge commandStr
+     "NEST"   -> createNest commandStr
      "RENAME" -> createRename commandStr
      _        -> error ("Command not recognized: " ++ funcName)
      where
@@ -166,7 +167,7 @@ createIdentity _ = ParserFunction {fun = boundId, funType = "identity", args = [
   where
     boundId x = x
 
--- EXAMPLE SYNTAX: CREATE SELECTOR <SELECTOR>;
+-- SYNTAX: CREATE SELECTOR <SELECTOR>;
 createTable :: String -> ParserFunction
 createTable commandStr = ParserFunction {
   fun = boundFunc,
@@ -185,6 +186,7 @@ validateInsertArgs :: [String] -> (String, String, String)
 validateInsertArgs [tableName, key, val] = (tableName, key, val)
 validateInsertArgs x = error ("INSERT REQUIRES AT EXACTLY THREE ARGUMENTS.\nProblem line: " ++ show x)
 
+-- SYNTAX: INSERT <SELECTOR> (<CSS_KEY>, <CSS_VALUE>);
 createInsert :: String -> ParserFunction
 createInsert commandStr = ParserFunction {
   fun = boundFunc,
@@ -196,6 +198,7 @@ createInsert commandStr = ParserFunction {
     addAtrib = addAttributeToTable (Attribute{cssKey = key, cssVal = val})
     boundFunc db = updateTableInTable db (addAtrib (getTable db tableName))
 
+-- SYNTAX: DELETE <SELECTOR> <CSS_KEY>;
 createDelete :: String -> ParserFunction
 createDelete commandStr = ParserFunction {
   fun = boundFunc,
@@ -209,13 +212,14 @@ createDelete commandStr = ParserFunction {
     where
       newTable = removeAttributeFromTable (getTable db tableName) attributeName
 
-
+-- SYNTAX: DROP <SELECTOR>;
 createDrop :: String -> ParserFunction
 createDrop commandStr = ParserFunction {fun = boundFunc, funType = "createDrop", args = [tableName]}
   where
   (funName:tableName:xs) = toArgs commandStr
   boundFunc db = dropTableInTable db tableName
 
+-- SYNTAX: COPY <SELECTOR> AS <SELECTOR>;
 createCopy :: String -> ParserFunction
 createCopy commandStr = ParserFunction {
   fun = boundFunc,
@@ -228,6 +232,7 @@ createCopy commandStr = ParserFunction {
     where
       oldTable = getTable db oldTableName
 
+-- SYNTAX: RENAME <SELECTOR> AS <SELECTOR>;
 createRename :: String -> ParserFunction
 createRename commandStr = ParserFunction {
   fun = boundFunc,
@@ -255,6 +260,7 @@ validateMergeArgs args
   | length args < 3 = error "MERGE REQUIRES AT LEAST THREE ARGUMENTS, SEPERATED BY 'AND' and 'AS'"
   | otherwise = args
 
+-- MERGE <SELECTOR> AND <SELECTOR> AND ... AND <SELECTOR> AS <NEW SELECTOR>;
 createMerge :: String -> ParserFunction
 createMerge commandStr = ParserFunction {
   fun = boundFunc,
@@ -265,6 +271,27 @@ createMerge commandStr = ParserFunction {
     foundArgs = validateMergeArgs (filter (not . null) (splitOnAnyOf ["MERGE ", " AND ", " AS "] commandStr))
     newTableName = last foundArgs
     mergingTables = init foundArgs
+
+    boundFunc containerTab = insertTableIntoTable containerTab mergedTable
+      where
+        currentTables = map (getTable containerTab) mergingTables
+        tempTable = foldr (<>) (emptyTable "FILLTABLE") currentTables
+        mergedTable = tempTable {selector = newTableName, order = -1}
+
+
+
+
+-- NEST <SELECTOR> INTO <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;
+createNest :: String -> ParserFunction
+createNest commandStr = ParserFunction {
+  fun = boundFunc,
+  funType = "createNest",
+  args = foundArgs
+  }
+  where
+    foundArgs = validateMergeArgs (filter (not . null) (splitOnAnyOf ["NEST ", " INTO ", " IN "] commandStr))
+    newTableName = head foundArgs
+    containingTableNames = reverse tail foundArgs
 
     boundFunc containerTab = insertTableIntoTable containerTab mergedTable
       where

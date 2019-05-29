@@ -1,0 +1,15 @@
+CREATE SELECTOR .hugest-container;
+INSERT .hugest-container (display, block);
+
+CREATE SELECTOR .biggest-container;
+INSERT .biggest-container (display, inline-block);
+
+CREATE SELECTOR .medium-container;
+INSERT .medium-container (display, inline);
+
+CREATE SELECTOR .smallest-container;
+INSERT .smallest-container (display, flex);
+
+NEST .biggest-container INTO .hugest-container;
+NEST .medium-container INTO .biggest-container IN .hugest-container;
+NEST .smallest-container INTO .medium-container IN .biggest-container IN .hugest-container;

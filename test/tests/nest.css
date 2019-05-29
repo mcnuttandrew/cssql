@@ -1,0 +1,12 @@
+.hugest-container {
+  display: block;
+}
+.biggest-container {
+  display: inline-block;
+}
+.medium-container {
+  display: inline;
+}
+.smallest-container {
+  display: flex;
+}

@@ -48,10 +48,15 @@ Remove table from the database
 Copy a table as another table, old table still exists.
 
 `RENAME <SELECTOR> AS <SELECTOR>;`<br/>
+`RENAME <SELECTOR> AS <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;`<br/>
 Rename a table
 
 `MERGE <SELECTOR> AND <SELECTOR> AND ... AND <SELECTOR> AS <NEW SELECTOR>;`<br/>
 Combine the attributes of a collection of selectors, order of input selectors determines resulting attribute table
+
+`NEST <SELECTOR> INTO <SELECTOR>;`<br/>
+`NEST <SELECTOR> INTO <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;`<br/>
+Destructively move a table into another table
 
 
 ### Syntax Example

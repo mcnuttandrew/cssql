@@ -79,34 +79,35 @@ CREATE SELECTOR .names-boxes .reversed;
 INSERT .names-boxes .reversed (flex-direction, row-reverse);
 
 
-// @media screen and (max-width: 576px) {
-//  .app {
-//    padding: 5%)
-//  }
-//
-//  .project-name .title {
-//    font-size: 48px;
-//  }
-//
-//  .project-name .subtitle {
-//    font-size: 24px;
-//  }
-//
-//  .circles-container {
-//    flex-direction: column;
-//  }
-//
-//  .timeline-wrapper {
-//    max-width: 100%;
-//    overflow: scroll;
-//    -webkit-overflow-scrolling: touch;
-//  }
-//
-//  .names-boxes {
-//    align-self: flex-start;
-//    max-width: 100px;
-//  }
-// }
+CREATE SELECTOR @media screen and (max-width: 576px);
+
+CREATE SELECTOR inn.app;
+INSERT inn.app (padding, 5%);
+RENAME inn.app AS .app  IN @media screen and (max-width: 576px);
+
+CREATE SELECTOR inn.project-name .title;
+INSERT inn.project-name .title (font-size, 48px);
+RENAME inn.project-name .title AS .project-name .title IN @media screen and (max-width: 576px);
+
+CREATE SELECTOR inn.project-name .subtitle;
+INSERT inn.project-name .subtitle (font-size, 24px);
+RENAME inn.project-name .subtitle AS .project-name .subtitle IN @media screen and (max-width: 576px);
+
+CREATE SELECTOR inn.circles-container;
+INSERT inn.circles-container (flex-direction, column);
+RENAME inn.circles-container AS .circles-container IN @media screen and (max-width: 576px);
+
+CREATE SELECTOR inn.timeline-wrapper;
+INSERT inn.timeline-wrapper (max-width, 100%);
+INSERT inn.timeline-wrapper (overflow, scroll);
+INSERT inn.timeline-wrapper (-webkit-overflow-scrolling, touch);
+RENAME inn.timeline-wrapper AS .timeline-wrapper IN @media screen and (max-width: 576px);
+
+CREATE SELECTOR inn.names-boxes;
+INSERT inn.names-boxes (align-self, flex-start);
+INSERT inn.names-boxes (max-width, 100px);
+RENAME inn.names-boxes AS .names-boxes IN @media screen and (max-width: 576px);
+
 
 CREATE SELECTOR .rv-xy-plot__series--label-text;
 INSERT .rv-xy-plot__series--label-text (font-size, 20px);
