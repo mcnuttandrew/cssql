@@ -122,16 +122,16 @@ To create a copy of the js library for distribution run
 
 To run the library in haskell without using stack do
 
-runghc -i./src app/Main.hs convert FILE_IN FILE_OUT
+
 
 ### Dev API
 
 the haskell api has two commands
 
-- runghc Main.hs convert <IN FILE.cssql> <OUT FILE.css>
+- runghc -i./src app/Main.hs convert <IN FILE.cssql> <OUT FILE.css>
 
   As the name would suggest that function converts a target cssql file into a css file
 
-- runghc Main.hs runtests
+- runghc -i./src test/Spec.hs
 
   This executes our test suite
