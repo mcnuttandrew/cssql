@@ -257,7 +257,7 @@ extractArgs argBreaks commandStr = filter (not . null) (splitOnAnyOf argBreaks c
 
 validateMergeArgs :: [String] -> [String]
 validateMergeArgs args
-  | length args < 3 = error "MERGE REQUIRES AT LEAST THREE ARGUMENTS, SEPERATED BY 'AND' and 'AS'"
+  | length args < 3 = error ("MERGE REQUIRES AT LEAST THREE ARGUMENTS, SEPERATED BY 'AND' and 'AS'.\nError at line: " ++ concat args)
   | otherwise = args
 
 -- MERGE <SELECTOR> AND <SELECTOR> AND ... AND <SELECTOR> AS <NEW SELECTOR>;
@@ -280,6 +280,10 @@ createMerge commandStr = ParserFunction {
 
 
 
+validateNestArgs :: [String] -> [String]
+validateNestArgs args
+  | length args < 3 = error ("NEST REQUIRES AT LEAST THREE ARGUMENTS, SEPERATED BY 'INTO' and 'IN'.\nError at line: " ++ concat args)
+  | otherwise = args
 
 -- NEST <SELECTOR> INTO <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;
 createNest :: String -> ParserFunction
@@ -291,10 +295,10 @@ createNest commandStr = ParserFunction {
   where
     foundArgs = validateMergeArgs (filter (not . null) (splitOnAnyOf ["NEST ", " INTO ", " IN "] commandStr))
     newTableName = head foundArgs
-    containingTableNames = reverse tail foundArgs
+    containingTableNames = reverse (tail foundArgs)
 
     boundFunc containerTab = insertTableIntoTable containerTab mergedTable
       where
-        currentTables = map (getTable containerTab) mergingTables
-        tempTable = foldr (<>) (emptyTable "FILLTABLE") currentTables
+        nestedTables = map (getTable containerTab) containingTableNames
+        tempTable = foldr (<>) (emptyTable "FILLTABLE") nestedTables
         mergedTable = tempTable {selector = newTableName, order = -1}
