@@ -14,7 +14,8 @@ testNames =
   , "join"
   , "merge-and-deleted"
   , "copy-rename-drop"
-  , "nest"]
+  , "nest"
+  , "longer-file"]
 testSource     name = "./test/tests/" ++ name ++ ".cssql"
 testSink       name = "./test/tests/" ++ name ++ ".css"
 testExpected   name = "./test/tests/" ++ name ++ "-expected.css"

@@ -4,9 +4,9 @@
 .hugest-container .biggest-container {
   display: inline-block;
 }
-.hugest-container .biggest-container .medium-container {
+.hugest-container .biggest-container #cool-new-name {
   display: inline;
 }
-.hugest-container .biggest-container .medium-container .smallest-container {
+.hugest-container .biggest-container #cool-new-name .smallest-container {
   display: flex;
 }

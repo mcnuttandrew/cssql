@@ -83,29 +83,35 @@ CREATE SELECTOR @media screen and (max-width: 576px);
 
 CREATE SELECTOR inn.app;
 INSERT inn.app (padding, 5%);
-RENAME inn.app AS .app  IN @media screen and (max-width: 576px);
+NEST inn.app INTO @media screen and (max-width: 576px);
+RENAME inn.app AS .app IN @media screen and (max-width: 576px);
 
 CREATE SELECTOR inn.project-name .title;
 INSERT inn.project-name .title (font-size, 48px);
+NEST inn.project-name .title INTO @media screen and (max-width: 576px);
 RENAME inn.project-name .title AS .project-name .title IN @media screen and (max-width: 576px);
 
 CREATE SELECTOR inn.project-name .subtitle;
 INSERT inn.project-name .subtitle (font-size, 24px);
+NEST inn.project-name .subtitle INTO @media screen and (max-width: 576px);
 RENAME inn.project-name .subtitle AS .project-name .subtitle IN @media screen and (max-width: 576px);
 
 CREATE SELECTOR inn.circles-container;
 INSERT inn.circles-container (flex-direction, column);
+NEST inn.circles-container INTO @media screen and (max-width: 576px);
 RENAME inn.circles-container AS .circles-container IN @media screen and (max-width: 576px);
 
 CREATE SELECTOR inn.timeline-wrapper;
 INSERT inn.timeline-wrapper (max-width, 100%);
 INSERT inn.timeline-wrapper (overflow, scroll);
 INSERT inn.timeline-wrapper (-webkit-overflow-scrolling, touch);
+NEST inn.timeline-wrapper INTO @media screen and (max-width: 576px);
 RENAME inn.timeline-wrapper AS .timeline-wrapper IN @media screen and (max-width: 576px);
 
 CREATE SELECTOR inn.names-boxes;
 INSERT inn.names-boxes (align-self, flex-start);
 INSERT inn.names-boxes (max-width, 100px);
+NEST inn.names-boxes INTO @media screen and (max-width: 576px);
 RENAME inn.names-boxes AS .names-boxes IN @media screen and (max-width: 576px);
 
 

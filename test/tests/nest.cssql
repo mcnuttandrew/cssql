@@ -13,3 +13,4 @@ INSERT .smallest-container (display, flex);
 NEST .biggest-container INTO .hugest-container;
 NEST .medium-container INTO .biggest-container IN .hugest-container;
 NEST .smallest-container INTO .medium-container IN .biggest-container IN .hugest-container;
+RENAME .medium-container AS #cool-new-name IN .biggest-container IN .hugest-container;
