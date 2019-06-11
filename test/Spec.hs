@@ -11,9 +11,11 @@ checkFileEquality leftFilePath rightFilePath = do
 
 testNames =
   [ "simple"
-  ,  "join"
-  ,  "merge-and-deleted"
-  ,  "copy-rename-drop"]
+  , "join"
+  , "merge-and-deleted"
+  , "copy-rename-drop"
+  , "nest"
+  , "longer-file"]
 testSource     name = "./test/tests/" ++ name ++ ".cssql"
 testSink       name = "./test/tests/" ++ name ++ ".css"
 testExpected   name = "./test/tests/" ++ name ++ "-expected.css"
@@ -37,7 +39,6 @@ transpileFile inFile outFile = do
 main :: IO()
 main = do
   putStrLn "RUNNING TEST SUITE"
-  -- passCount <- foldr (\ testPrefix acc -> if runtest testPrefix then acc + 1 else acc) runtest testNames
   passes <- mapM runtest testNames
   let passCount = length (filter id passes)
   putStrLn ("\nPASSED " ++ show passCount ++ " out of " ++ show (length testNames) ++ " tests." )
