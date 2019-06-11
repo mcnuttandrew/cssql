@@ -48,7 +48,6 @@ Remove table from the database
 Copy a table as another table, old table still exists.
 
 `RENAME <SELECTOR> AS <SELECTOR>;`<br/>
-`RENAME <SELECTOR> AS <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;`<br/>
 Rename a table
 
 `MERGE <SELECTOR> AND <SELECTOR> AND ... AND <SELECTOR> AS <NEW SELECTOR>;`<br/>

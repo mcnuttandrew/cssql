@@ -242,7 +242,7 @@ createCopy commandStr = ParserFunction {
     where
       oldTable = getTable db oldTableName
 
--- SYNTAX: RENAME <SELECTOR> AS <SELECTOR>;
+-- SYNTAX: RENAME <SELECTOR> AS <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;
 createRename :: String -> ParserFunction
 createRename commandStr = ParserFunction {
   fun = boundFunc,
