@@ -15,7 +15,8 @@ testNames =
   , "merge-and-deleted"
   , "copy-rename-drop"
   , "nest"
-  , "longer-file"]
+  , "longer-file"
+  , "psuedo-selectors"]
 testSource     name = "./test/tests/" ++ name ++ ".cssql"
 testSink       name = "./test/tests/" ++ name ++ ".css"
 testExpected   name = "./test/tests/" ++ name ++ "-expected.css"

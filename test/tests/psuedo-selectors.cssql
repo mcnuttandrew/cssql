@@ -1,0 +1,11 @@
+CREATE SELECTOR .box;
+INSERT .box (background-color, yellow);
+INSERT .box (width, 300px);
+INSERT .box (height, 200px);
+INSERT .box (margin, auto);
+INSERT .box (font-size, 40px);
+INSERT .box (text-align, center);
+
+CREATE SELECTOR :hover;
+INSERT :hover (background-color, orange);
+NEST :hover INTO .box;

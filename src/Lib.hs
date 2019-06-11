@@ -44,7 +44,7 @@ buildSelector :: Table -> String
 buildSelector x = prefix ++ selector x
   where
     filteredParents = reverse $ filter (not . null) (parentSelectors x)
-    isPsuedoSelector = False
+    isPsuedoSelector = take 1 (selector x) == ":"
     conjoiner = if isPsuedoSelector then "" else " "
     parentSelector = unwords filteredParents
     prefix = if 0 == length filteredParents then "" else parentSelector ++ conjoiner
@@ -240,10 +240,6 @@ createTable commandStr = ParserFunction {
     (tableName:xs) = extractArgs ["CREATE SELECTOR "] commandStr
     boundFunc db = insertTableIntoTable db (emptyTable tableName)
 
-extractInsertArgs :: [[String]] -> (String, String, String)
-extractInsertArgs [[fullStr, target, key, val]] = (target, key, val)
-extractInsertArgs _ = error "Syntax error in insert"
-
 validateInsertArgs :: [String] -> (String, String, String)
 validateInsertArgs [tableName, key, val] = (tableName, key, val)
 validateInsertArgs x = error ("INSERT REQUIRES AT EXACTLY THREE ARGUMENTS.\nProblem line: " ++ show x)
@@ -351,7 +347,7 @@ createMerge commandStr = ParserFunction {
 
 validateNestArgs :: [String] -> [String]
 validateNestArgs args
-  | length args < 2 = error ("NEST REQUIRES AT LEAST THREE ARGUMENTS, SEPERATED BY 'INTO' and 'IN'.\nError at line: " ++ concat args)
+  | length args < 2 = error ("NEST REQUIRES AT LEAST TWO ARGUMENTS, SEPERATED BY 'INTO' and 'IN'.\nError at line: " ++ concat args)
   | otherwise = args
 
 -- NEST <SELECTOR> INTO <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;

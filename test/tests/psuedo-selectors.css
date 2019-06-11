@@ -1,0 +1,11 @@
+.box {
+  background-color: yellow;
+  font-size: 40px;
+  height: 200px;
+  margin: auto;
+  text-align: center;
+  width: 300px;
+}
+.box:hover {
+  background-color: orange;
+}
