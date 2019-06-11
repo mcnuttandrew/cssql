@@ -23,6 +23,7 @@ data Table = Table {
   order :: Int
   } deriving (Eq)
 
+-- TODO de-vendor-prefix the ordering
 data Attribute = Attribute {
   cssKey :: String,
   cssVal :: String} deriving (Ord, Eq)
@@ -34,16 +35,10 @@ data ParserFunction = ParserFunction {
   }
 
 instance Show Attribute where
-  show x = "  " ++ cssKey x ++ ": " ++ cssVal x ++ ";"
+  show x = indent $ cssKey x ++ ": " ++ cssVal x ++ ";"
 
 instance Show Table where
-  show x = formattedSelf ++ formattedChildren
-    where
-      sortedRows = sort (attributes x)
-      formattedRows = intercalate "\n" (map show sortedRows)
-      formattedSelf = if not (null sortedRows) then buildSelector x ++ " {\n" ++ formattedRows ++ "\n}\n" else ""
-      preppedChildren = map snd (Map.toList (Map.map show (tables x)))
-      formattedChildren = intercalate "\n" preppedChildren
+  show x = if isMediaQuery (selector x) then printMediaQueryTable x else printNormalTable x
 
 buildSelector :: Table -> String
 buildSelector x = prefix ++ selector x
@@ -54,12 +49,35 @@ buildSelector x = prefix ++ selector x
     parentSelector = unwords filteredParents
     prefix = if 0 == length filteredParents then "" else parentSelector ++ conjoiner
 
--- printNormalTable :: Table -> String
--- printNormalTable x = formattedSelf ++ formattedChildren
+isMediaQuery :: String -> Bool
+isMediaQuery str = take 6 str == "@media"
 
+printNormalTable :: Table -> String
+printNormalTable x = formattedSelf ++ intercalate "\n" (prepChildren x)
+  where
+    formattedSelf = if not (null $ attributes x) then
+        buildSelector x ++ " {\n" ++ generateAttributes x ++ "\n}\n" else ""
 
--- printMediaQueryTable :: Table -> String
--- printMediaQueryTable x =
+printMediaQueryTable :: Table -> String
+printMediaQueryTable x = formattedFirstPart ++ formattedChildren ++ "\n}\n"
+  where
+    formattedFirstPart = buildSelector x ++ " {\n" ++ generateAttributes x
+    formattedChildren = indent $ intercalate "\n" (prepChildren $ removeMediaQueryPrefix x)
+
+removeMediaQueryPrefix :: Table -> Table
+removeMediaQueryPrefix x = x {
+    tables = Map.map removeMediaQueryPrefix (tables x),
+    parentSelectors = filter (not.isMediaQuery) (parentSelectors x)
+    }
+
+prepChildren :: Table -> [String]
+prepChildren x = map show $ sort $ map snd (Map.toList $ tables x)
+
+generateAttributes :: Table -> String
+generateAttributes x = intercalate "\n" (map show (sort (attributes x)))
+
+indent :: String -> String
+indent str = "  " ++ intercalate "\n  " (filter (not . null) (splitOn "\n" str))
 
 instance Ord Table where
   compare a b
@@ -140,15 +158,14 @@ nestedDropTableInTable container (tableName:xs) = updateTableInTable container u
 
 decorateSelectorRoutes :: [String] -> Table -> Table
 decorateSelectorRoutes parentSelectors tab = tab {
-  tables = Map.map (decorateSelectorRoutes nextLevelSelectors) (tables tab),
+  tables = Map.map (decorateSelectorRoutes ((selector tab):parentSelectors)) (tables tab),
   parentSelectors = parentSelectors
   }
-  where
-    nextLevelSelectors = ((selector tab):parentSelectors)
 
+-- unused but kinda cool
+-- mapTables :: (Table -> Table) -> Table -> Table
+-- mapTables f tab = f tab {tables = Map.map f (tables tab)}
 
-mapTables :: (Table -> Table) -> Table -> Table
-mapTables f tab = f tab {tables = Map.map f (tables tab)}
 
 foldTables :: (Table -> a -> a) -> a -> Table -> a
 foldTables f init tab = foldr f init orderedTables

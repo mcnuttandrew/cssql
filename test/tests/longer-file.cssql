@@ -86,10 +86,13 @@ INSERT inn.app (padding, 5%);
 NEST inn.app INTO @media screen and (max-width: 576px);
 RENAME inn.app AS .app IN @media screen and (max-width: 576px);
 
-CREATE SELECTOR inn.project-name .title;
-INSERT inn.project-name .title (font-size, 48px);
-NEST inn.project-name .title INTO @media screen and (max-width: 576px);
-RENAME inn.project-name .title AS .project-name .title IN @media screen and (max-width: 576px);
+CREATE SELECTOR inn.project-name;
+CREATE SELECTOR inn.title;
+INSERT inn.title (font-size, 48px);
+NEST inn.title INTO inn.project-name;
+NEST inn.project-name INTO @media screen and (max-width: 576px);
+RENAME inn.project-name AS .project-name IN @media screen and (max-width: 576px);
+RENAME inn.title AS .title IN .project-name IN @media screen and (max-width: 576px);
 
 CREATE SELECTOR inn.project-name .subtitle;
 INSERT inn.project-name .subtitle (font-size, 24px);
