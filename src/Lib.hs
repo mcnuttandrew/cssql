@@ -36,10 +36,12 @@ instance Show Attribute where
   show x = "  " ++ cssKey x ++ ": " ++ cssVal x ++ ";"
 
 instance Show Table where
-  show x = selector x ++ " {\n" ++ formattedRows ++ "\n}\n"
+  show x = selector x ++ " {\n" ++ formattedRows ++ "\n}\n" ++ formattedChildren
     where
       sortedRows = sort (attributes x)
       formattedRows = intercalate "\n" (map show sortedRows)
+      preppedChildren = map snd (Map.toList (Map.map show (tables x)))
+      formattedChildren = intercalate "\n" preppedChildren
 
 instance Ord Table where
   compare a b
@@ -85,14 +87,21 @@ insertTableIntoTable containerTab insertTab = containerTab {tables = newTables, 
 
 
 updateTableInTable :: Table -> Table -> Table
-updateTableInTable containerTab insertTab = containerTab {
-  tables = Map.insert (selector insertTab) insertTab (tables containerTab)}
+updateTableInTable container insertTab = container {
+  tables = Map.insert (selector insertTab) insertTab (tables container)}
 
 dropTableInTable :: Table -> String -> Table
 dropTableInTable tab selectorName = tab {tables = Map.delete selectorName (tables tab)}
 
 getTable :: Table -> String -> Table
 getTable tab tableName = fromMaybe (error("Selector \"" ++ tableName ++ "\" not found")) (Map.lookup tableName (tables tab))
+
+
+nestedUpdateTableInTable :: Table -> Table -> [String] -> Table
+nestedUpdateTableInTable container insertTab [] = insertTableIntoTable container insertTab
+nestedUpdateTableInTable container insertTab (tableName:xs) = updateTableInTable container updatedTable
+  where
+    updatedTable = nestedUpdateTableInTable (getTable container tableName) insertTab xs
 
 mergeSelectors :: String -> Table -> Table
 mergeSelectors parentSelector tab = tab {
@@ -162,8 +171,9 @@ parseStatement commandStr =
      where
        funcName = head (toArgs commandStr)
 
+-- mostly used for debugging
 createIdentity :: String -> ParserFunction
-createIdentity _ = ParserFunction {fun = boundId, funType = "identity", args = []}
+createIdentity input = ParserFunction {fun = boundId, funType = "identity", args = [input]}
   where
     boundId x = x
 
@@ -247,13 +257,15 @@ createRename commandStr = ParserFunction {
       dbUpdate = dropTableInTable db oldTableName
 
 
+prepareAndValidate :: ([String] -> [String]) -> [String] -> String -> [String]
+prepareAndValidate validator splits input = validator (filter (not . null) (splitOnAnyOf splits input))
 
 -- https://stackoverflow.com/questions/49228467/split-string-on-multiple-delimiters-of-any-length-in-haskell
 splitOnAnyOf :: Eq a => [[a]] -> [a] -> [[a]]
 splitOnAnyOf ds xs = foldl' (\ys d -> ys >>= splitOn d) [xs] ds
 
 extractArgs :: [String] -> String -> [String]
-extractArgs argBreaks commandStr = filter (not . null) (splitOnAnyOf argBreaks commandStr)
+extractArgs = prepareAndValidate id
 
 validateMergeArgs :: [String] -> [String]
 validateMergeArgs args
@@ -268,7 +280,7 @@ createMerge commandStr = ParserFunction {
   args = foundArgs
   }
   where
-    foundArgs = validateMergeArgs (filter (not . null) (splitOnAnyOf ["MERGE ", " AND ", " AS "] commandStr))
+    foundArgs = prepareAndValidate validateMergeArgs ["MERGE ", " AND ", " AS "] commandStr
     newTableName = last foundArgs
     mergingTables = init foundArgs
 
@@ -282,7 +294,7 @@ createMerge commandStr = ParserFunction {
 
 validateNestArgs :: [String] -> [String]
 validateNestArgs args
-  | length args < 3 = error ("NEST REQUIRES AT LEAST THREE ARGUMENTS, SEPERATED BY 'INTO' and 'IN'.\nError at line: " ++ concat args)
+  | length args < 2 = error ("NEST REQUIRES AT LEAST THREE ARGUMENTS, SEPERATED BY 'INTO' and 'IN'.\nError at line: " ++ concat args)
   | otherwise = args
 
 -- NEST <SELECTOR> INTO <INNERMOST SELECTOR> IN ... IN <OUTERMOST SELECTOR>;
@@ -293,12 +305,11 @@ createNest commandStr = ParserFunction {
   args = foundArgs
   }
   where
-    foundArgs = validateMergeArgs (filter (not . null) (splitOnAnyOf ["NEST ", " INTO ", " IN "] commandStr))
-    newTableName = head foundArgs
+    foundArgs = prepareAndValidate validateNestArgs ["NEST ", " INTO ", " IN "] commandStr
+    moveTableName = head foundArgs
     containingTableNames = reverse (tail foundArgs)
 
-    boundFunc containerTab = insertTableIntoTable containerTab mergedTable
+    boundFunc containerTab = dropTableInTable updatedContainer moveTableName
       where
-        nestedTables = map (getTable containerTab) containingTableNames
-        tempTable = foldr (<>) (emptyTable "FILLTABLE") nestedTables
-        mergedTable = tempTable {selector = newTableName, order = -1}
+        nestingTable = getTable containerTab moveTableName
+        updatedContainer = nestedUpdateTableInTable containerTab nestingTable containingTableNames
