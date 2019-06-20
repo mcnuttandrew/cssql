@@ -1,3 +1,6 @@
+![alt text](https://raw.githubusercontent.com/mcnuttandrew/cssql/master/logo.png "Logo Title Text 1")
+
+
 # CSSQL
 
 This library cuts through the javascript/css debate by providing a forbidden third option: css in sql!
