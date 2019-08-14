@@ -4,7 +4,9 @@
 # CSSQL
 
 This library cuts through the javascript/css debate by providing a forbidden third option: css in sql!
-Through the use of a SQL DDL-like syntax users are able to style files which are then transpiled in CSS. The transpiler is written in haskell, but is made more usefully available by being distribution in javascript through the use [ghcjs](https://github.com/ghcjs/ghcjs).
+Through the use of a SQL DDL-like syntax users are able to style files which are then transpiled in CSS. The core idea of the library is that selectors within the cascade function a little bit like relational database albiet ones with set like behaviours and not bag like behaviour. The mental model you should have as you develop CSSQL stylebases is create a series of nestable tables!
+
+The transpiler is written in haskell, but is made more usefully available by being distribution in javascript through the use [ghcjs](https://github.com/ghcjs/ghcjs).
 
 *Q*: I've heard that CSS often falls in the write-once-read-never mode of software, does this help to address that?<br/>
 *A*: No, in fact it actually makes the problem worse by making the syntax more verbose and hence more difficult to read.
