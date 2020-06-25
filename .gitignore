@@ -2,3 +2,5 @@ node_modules/
 .stack-work/
 myproj.cabal
 *~
+dist/
+node-library/cssql-lib.js
